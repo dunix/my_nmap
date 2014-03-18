@@ -1,4 +1,4 @@
-
+#coding: utf8 
 """ ITCR - IC8042
  David Chaverri Perez
  Tarea corta 4: 
@@ -15,7 +15,12 @@ def ayuda():
 def revisarEntrada():
 	#función para revisar los parámetros de entrada
 	if len(sys.argv) != 3:
-		if sys.argv[1] == "-h":
+		if len(sys.argv) == 1:
+			print ("Error - Faltan parámetros")
+			print ("---help---")
+			print ("Para ayuda digite: my_nmap -h")
+			sys.exit(1)				
+		elif sys.argv[1] == "-h":
 			ayuda()
 		else:
 			print ("Error - Faltan parámetros")
@@ -25,6 +30,7 @@ def revisarEntrada():
 			
 def TCP_Connect():
 	print("TCP_Connect")
+	
 		
 def opciones():
 	if sys.argv[1] == "-sT":
