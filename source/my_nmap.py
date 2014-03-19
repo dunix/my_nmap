@@ -29,7 +29,24 @@ def revisarEntrada():
 			sys.exit(1)
 			
 def TCP_Connect():
-	print("TCP_Connect")
+	# paso 1 ----> SYN 
+	ip = IP()
+	ip.dst = sys.argv[2]
+	tcp =TCP()
+	tcp.flags = "S"
+	tcp.dport = 80
+	tcp.seq = 12
+	resp1 = sr1(ip/tcp)
+	# paso 2 <---- SYN ACK 
+	resp1.show()
+	tcp2 =TCP()
+	tcp2.flags = "A"
+	tcp2.dport = 80
+	tcp2.ack = resp1.seq +1
+	# paso 1 ----> ACK
+	resp2 = send(ip/tcp)
+	
+	
 	
 		
 def opciones():
