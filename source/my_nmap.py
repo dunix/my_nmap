@@ -34,17 +34,28 @@ def TCP_Connect():
 	ip.dst = sys.argv[2]
 	tcp =TCP()
 	tcp.flags = "S"
-	tcp.dport = 80
+	tcp.dport = 21
 	tcp.seq = 12
-	resp1 = sr1(ip/tcp)
-	# paso 2 <---- SYN ACK 
-	resp1.show()
-	tcp2 =TCP()
-	tcp2.flags = "A"
-	tcp2.dport = 80
-	tcp2.ack = resp1.seq +1
-	# paso 1 ----> ACK
-	resp2 = send(ip/tcp)
+	resp1 = sr1(ip/tcp, timeout = 3)
+	#verificación bandera
+	x = "hola"#resp1.summary()
+	if x.find('SA') != -1:	
+		# paso 2 <---- SYN ACK 
+		tcp2 =TCP()
+		tcp2.flags = "A"
+		tcp2.dport = 80
+		tcp2.ack = resp1.seq +1
+		# paso 1 ----> ACK
+		resp2 = send(ip/tcp)
+		print("Puerto: "+  str(tcp.dport) +" Open")
+		
+	else:
+		x= str(resp1)
+		if x.find('R') != -1:	
+			print("Puerto: "+  str(tcp.dport) +" Closed")
+		else:
+			print("Puerto: "+  str(tcp.dport) +" filtered")
+	
 	
 	
 	
