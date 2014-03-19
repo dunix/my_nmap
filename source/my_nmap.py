@@ -56,7 +56,7 @@ def TCP_Connect():
 			print("Puerto: "+  str(tcp.dport) +" Open")
 		else:
 			# <---- RST 
-			if x.find('R ') != -1:
+			if x.find('R') != -1:
 				x="cerrado"
 				#print("Puerto: "+  str(tcp.dport) +" Closed")
 			else:
