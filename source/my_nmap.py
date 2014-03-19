@@ -89,7 +89,7 @@ def TCP_SYN():
 			tcp2.flags = "R"
 			tcp2.dport = port
 			tcp2.ack = resp1.seq +1
-			# paso 3 ----> ACK
+			# paso 3 ---->  R
 			resp2 = send(ip/tcp , verbose=0)
 			print("Puerto: "+  str(tcp.dport) +" Open")
 		else:
