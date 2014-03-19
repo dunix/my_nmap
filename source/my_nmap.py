@@ -28,7 +28,8 @@ def revisarEntrada():
 			print ("---help---")
 			print ("Para ayuda digite: my_nmap -h")
 			sys.exit(1)
-			
+
+#TCP_Connect()
 def TCP_Connect():
 	port = 1
 	while port < 1023:
@@ -51,7 +52,7 @@ def TCP_Connect():
 			tcp2.flags = "A"
 			tcp2.dport = port
 			tcp2.ack = resp1.seq +1
-			# paso 1 ----> ACK
+			# paso 3 ----> ACK
 			resp2 = send(ip/tcp , verbose=0)
 			print("Puerto: "+  str(tcp.dport) +" Open")
 		else:
@@ -63,11 +64,49 @@ def TCP_Connect():
 				if x == "None":
 					#  ----> SYN
 					print("Puerto: "+  str(tcp.dport) +" filtered")
-		port= port+1
+		port= port+1		
 		
+#TCP_SYN()
+def TCP_SYN():
+	port = 1
+	while port < 1023:
+		# paso 1 ----> SYN
+		ip = IP()
+		ip.dst = sys.argv[2]
+		tcp =TCP()
+		tcp.flags = "S"
+		tcp.dport = port	
+		tcp.seq = 12
+		resp1 = sr1(ip/tcp, timeout = 1, verbose=0)
+		#verificación bandera
+		try:
+			x = resp1.summary()
+		except:
+			x= str(resp1)
+		if x.find('SA') != -1:	
+			# paso 2 <---- SYN ACK 
+			tcp2 =TCP()
+			tcp2.flags = "R"
+			tcp2.dport = port
+			tcp2.ack = resp1.seq +1
+			# paso 3 ----> ACK
+			resp2 = send(ip/tcp , verbose=0)
+			print("Puerto: "+  str(tcp.dport) +" Open")
+		else:
+			# <---- RST 
+			if x.find('R') != -1:
+				x="cerrado"
+				#print("Puerto: "+  str(tcp.dport) +" Closed")
+			else:
+				if x == "None":
+					#  ----> SYN
+					print("Puerto: "+  str(tcp.dport) +" filtered")
+		port= port+1		
 def opciones():
 	if sys.argv[1] == "-sT":
 		return TCP_Connect()
+	if sys.argv[1] == "-sS":
+		return TCP_SYN()		
 	else:
 		print ("Error - opción inválida")
 		print ("---help---")
@@ -75,8 +114,6 @@ def opciones():
 		sys.exit(1)
 	
 """		
-	if sys.argv[1] == "-sS":
-		return TCP_SYN()
 	if sys.argv[1] == "-sA":
 		return TCP_ACK()			
 	if sys.argv[1] == "-sF":
