@@ -30,7 +30,7 @@ def revisarEntrada():
 			sys.exit(1)
 			
 def TCP_Connect():
-	port = 0
+	port = 1
 	while port < 1023:
 		# paso 1 ----> SYN
 		ip = IP()
