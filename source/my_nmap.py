@@ -8,6 +8,7 @@
 from scapy.all import * #libreria scapy
 import sys 				#entrada estandar del terminal (utilidad sys)
 
+
 def ayuda():
 	print ("ayuda en mantenimiento")
 	sys.exit(1)
@@ -29,39 +30,39 @@ def revisarEntrada():
 			sys.exit(1)
 			
 def TCP_Connect():
-	# paso 1 ----> SYN
-	ip = IP()
-	ip.dst = sys.argv[2]
-	tcp =TCP()
-	tcp.flags = "S"
-	tcp.dport = 80	
-	tcp.seq = 12
-	resp1 = sr1(ip/tcp, timeout = 1)
-	#verificación bandera
-	try:
-		x = resp1.summary()
-	except:
-		x= str(resp1)
-    	
-	if x.find('SA') != -1:	
-		# paso 2 <---- SYN ACK 
-		tcp2 =TCP()
-		tcp2.flags = "A"
-		tcp2.dport = 80
-		tcp2.ack = resp1.seq +1
-		# paso 1 ----> ACK
-		resp2 = send(ip/tcp)
-		print("Puerto: "+  str(tcp.dport) +" Open")
-		
-	else:
-		if x.find('R') != -1:	
-			print("Puerto: "+  str(tcp.dport) +" Closed")
+	port = 0
+	while port < 81:
+		# paso 1 ----> SYN
+		ip = IP()
+		ip.dst = sys.argv[2]
+		tcp =TCP()
+		tcp.flags = "S"
+		tcp.dport = port	
+		tcp.seq = 12
+		resp1 = sr1(ip/tcp, timeout = 1)
+		#verificación bandera
+		try:
+			x = resp1.summary()
+		except:
+			x= str(resp1)    	
+		if x.find('SA') != -1:	
+			# paso 2 <---- SYN ACK 
+			tcp2 =TCP()
+			tcp2.flags = "A"
+			tcp2.dport = port
+			tcp2.ack = resp1.seq +1
+			# paso 1 ----> ACK
+			resp2 = send(ip/tcp)
+			print("Puerto: "+  str(tcp.dport) +" Open")
 		else:
-			print("Puerto: "+  str(tcp.dport) +" filtered")
-	
-	
-	
-	
+			# <---- RST 
+			if x.find('R') != -1:
+				print()	
+				#print("Puerto: "+  str(tcp.dport) +" Closed")
+			else:
+				#  ----> SYN
+				print("Puerto: "+  str(tcp.dport) +" filtered")
+		port= port+1
 		
 def opciones():
 	if sys.argv[1] == "-sT":
