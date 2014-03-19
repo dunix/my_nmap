@@ -29,16 +29,20 @@ def revisarEntrada():
 			sys.exit(1)
 			
 def TCP_Connect():
-	# paso 1 ----> SYN 
+	# paso 1 ----> SYN
 	ip = IP()
 	ip.dst = sys.argv[2]
 	tcp =TCP()
 	tcp.flags = "S"
-	tcp.dport = 21
+	tcp.dport = 80	
 	tcp.seq = 12
-	resp1 = sr1(ip/tcp, timeout = 3)
+	resp1 = sr1(ip/tcp, timeout = 1)
 	#verificación bandera
-	x = "hola"#resp1.summary()
+	try:
+		x = resp1.summary()
+	except:
+		x= str(resp1)
+    	
 	if x.find('SA') != -1:	
 		# paso 2 <---- SYN ACK 
 		tcp2 =TCP()
@@ -50,7 +54,6 @@ def TCP_Connect():
 		print("Puerto: "+  str(tcp.dport) +" Open")
 		
 	else:
-		x= str(resp1)
 		if x.find('R') != -1:	
 			print("Puerto: "+  str(tcp.dport) +" Closed")
 		else:
