@@ -149,6 +149,28 @@ def TCP_FIN():
 		port = port +1
 	
 	print("Puertos Abiertos/filtrados:  "+  str(OpenFiltered))
+
+def TCP_UDP():
+	print("------ Ejecutando TCP_UDP---------")
+	port = 1
+	OpenFiltered = 0
+	ip = IP()
+	ip.dst = sys.argv[2]
+	udp =UDP()
+	while port < 10:
+		udp.dport = port	
+		resp1 = sr1(ip/udp, timeout = 5, verbose=0)
+		#verificación bandera
+		if (str(type(resp1))=="<type 'NoneType'>"): #packs sin respuesta
+			OpenFiltered =  OpenFiltered +1
+		elif(resp1.haslayer(ICMP)):
+			if(int(resp1.getlayer(ICMP).type)==3):
+				print("Cerrado: " + str(port))	
+		else:
+			OpenFiltered =  OpenFiltered +1
+		port = port +1
+	
+	print("Puertos Abiertos/filtrados:  "+  str(OpenFiltered))	
 	
 def opciones():
 	if sys.argv[1] == "-sT":
@@ -158,7 +180,9 @@ def opciones():
 	if sys.argv[1] == "-sA":
 		return TCP_ACK()
 	if sys.argv[1] == "-sF":
-		return TCP_FIN()					
+		return TCP_FIN()	
+	if sys.argv[1] == "-sU":
+		return TCP_UDP()						
 		
 	else:
 		print ("Error - opción inválida")
@@ -168,9 +192,7 @@ def opciones():
 	
 """					
 	if sys.argv[1] == "-sI":
-		return TCP_IDLE_SCAN()		
-	if sys.argv[1] == "-sU":
-		return TCP_UDP()			
+		return TCP_IDLE_SCAN()					
 """
 
 			
