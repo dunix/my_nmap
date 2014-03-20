@@ -97,12 +97,41 @@ def TCP_SYN():
 				contClosed = contClosed +1
 		port= port+1
 	print("Puertos Cerrados:  "+  str(contClosed))
-	print("Puertos Filtrados: "+  str(contFiltered))	
+	print("Puertos Filtrados: "+  str(contFiltered))
+
+#TCP_ACK()
+def TCP_ACK():
+	print("------ Ejecutando TCP_ACK---------")
+	port = 1
+	unFiltered = 0
+	# paso 1 ----> ACK
+	ip = IP()
+	ip.dst = sys.argv[2]
+	tcp =TCP()
+	tcp.ack = 5
+	tcp.flags = "A"
+	while port < 1024:
+		tcp.dport = port	
+		resp1 = sr1(ip/tcp, timeout = 10, verbose=0)
+		#verificación bandera
+		if (str(type(resp1))=="<type 'NoneType'>"):
+			print("filtrado: " + str(port))
+		elif (resp1.haslayer(ICMP)):
+			if(int(resp1.getlayer(ICMP).type)==3):
+				print("filtrado: " + str(port))		
+		else:
+			unFiltered =  unFiltered +1
+		port = port +1
+	
+	print("Puertos no filtrados:  "+  str(unFiltered))
+	
 def opciones():
 	if sys.argv[1] == "-sT":
 		return TCP_Connect()
 	if sys.argv[1] == "-sS":
-		return TCP_SYN()		
+		return TCP_SYN()
+	if sys.argv[1] == "-sA":
+		return TCP_ACK()			
 		
 	else:
 		print ("Error - opción inválida")
@@ -110,9 +139,7 @@ def opciones():
 		print ("Para ayuda digite:my_nmap -h")
 		sys.exit(1)
 	
-"""	
-	if sys.argv[1] == "-sA":
-		return TCP_ACK()			
+"""			
 	if sys.argv[1] == "-sF":
 		return TCP_FIN()		
 	if sys.argv[1] == "-sI":
