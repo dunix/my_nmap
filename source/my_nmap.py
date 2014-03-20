@@ -110,7 +110,7 @@ def TCP_ACK():
 	tcp =TCP()
 	tcp.ack = 5
 	tcp.flags = "A"
-	while port < 1024:
+	while port < 200:
 		tcp.dport = port	
 		resp1 = sr1(ip/tcp, timeout = 10, verbose=0)
 		#verificación bandera
@@ -124,6 +124,31 @@ def TCP_ACK():
 		port = port +1
 	
 	print("Puertos no filtrados:  "+  str(unFiltered))
+
+def TCP_FIN():
+	print("------ Ejecutando TCP_FIN---------")
+	port = 1
+	OpenFiltered = 0
+	# paso 1 ----> FIN
+	ip = IP()
+	ip.dst = sys.argv[2]
+	tcp =TCP()
+	tcp.ack = 5
+	tcp.flags = "F"
+	while port < 10:
+		tcp.dport = port	
+		resp1 = sr1(ip/tcp, timeout = 2, verbose=0)
+		#verificación bandera
+		if (str(type(resp1))=="<type 'NoneType'>"): #packs sin respuesta
+			OpenFiltered =  OpenFiltered +1
+		elif(resp1.haslayer(TCP)):
+			if (resp1.getlayer(TCP).flags == 0x14):
+				print("Cerrado: " + str(port))	
+		else:
+			OpenFiltered =  OpenFiltered +1
+		port = port +1
+	
+	print("Puertos Abiertos/filtrados:  "+  str(OpenFiltered))
 	
 def opciones():
 	if sys.argv[1] == "-sT":
@@ -131,7 +156,9 @@ def opciones():
 	if sys.argv[1] == "-sS":
 		return TCP_SYN()
 	if sys.argv[1] == "-sA":
-		return TCP_ACK()			
+		return TCP_ACK()
+	if sys.argv[1] == "-sF":
+		return TCP_FIN()					
 		
 	else:
 		print ("Error - opción inválida")
@@ -139,9 +166,7 @@ def opciones():
 		print ("Para ayuda digite:my_nmap -h")
 		sys.exit(1)
 	
-"""			
-	if sys.argv[1] == "-sF":
-		return TCP_FIN()		
+"""					
 	if sys.argv[1] == "-sI":
 		return TCP_IDLE_SCAN()		
 	if sys.argv[1] == "-sU":
