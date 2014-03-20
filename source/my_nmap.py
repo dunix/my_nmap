@@ -90,7 +90,7 @@ def TCP_SYN():
 				# paso 2 <---- SYN ACK 
 				tcp2.dport = port
 				tcp2.ack = resp1.seq +1
-				# paso 3 ----> ACK
+				# paso 3 ----> RST
 				resp2 = send(ip/tcp , verbose=0)
 				print("Puerto: "+  str(tcp.dport) +" Estado: Open")
 			elif (resp1.getlayer(TCP).flags == 0x14):
