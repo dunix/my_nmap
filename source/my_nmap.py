@@ -165,11 +165,11 @@ def TCP_UDP():
 			OpenFiltered =  OpenFiltered +1
 		elif(resp1.haslayer(ICMP)):
 			if(int(resp1.getlayer(ICMP).type)==3):
-				print("Cerrado: " + str(port))	
+				if(int(resp1.getlayer(ICMP).code)==3): #ICMP #3 t&c = 3
+					print("Cerrado: " + str(port))	
 		else:
 			OpenFiltered =  OpenFiltered +1
 		port = port +1
-	
 	print("Puertos Abiertos/filtrados:  "+  str(OpenFiltered))	
 	
 def opciones():
