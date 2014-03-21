@@ -10,7 +10,16 @@ import sys 				#entrada estandar del terminal (utilidad sys)
 
 
 def ayuda():
-	print ("ayuda en mantenimiento")
+	print ("---Ayuda my_nmap---")
+	print ("-----Sintaxis------")
+	print ("my_nmap opcion IP_target")
+	print ("my_nmap -sT target")
+	print ("my_nmap -sS target")
+	print ("my_nmap -sA target")
+	print ("my_nmap -sF target")
+	print ("my_nmap -sU target")
+	print ("my_nmap -sI zombie target port")
+	
 	sys.exit(1)
 
 def revisarEntrada():
@@ -44,7 +53,7 @@ def TCP_Connect():
 	# tcp2
 	tcp2 =TCP()
 	tcp2.flags = "A" #para completar el 3WH	
-	while port < 10:
+	while port < 1024:
 		tcp.dport = port	
 		resp1 = sr1(ip/tcp, timeout = 1, verbose=0)
 		#verificación bandera
@@ -79,7 +88,7 @@ def TCP_SYN():
 	# tcp2
 	tcp2 =TCP()
 	tcp2.flags = "R" #para no completar el 3WH	send RST
-	while port < 10:
+	while port < 1024:
 		tcp.dport = port	
 		resp1 = sr1(ip/tcp, timeout = 1, verbose=0)
 		#verificación bandera
@@ -110,7 +119,7 @@ def TCP_ACK():
 	tcp =TCP()
 	tcp.ack = 5
 	tcp.flags = "A"
-	while port < 10:
+	while port < 1024:
 		tcp.dport = port	
 		resp1 = sr1(ip/tcp, timeout = 10, verbose=0)
 		#verificación bandera
@@ -135,7 +144,7 @@ def TCP_FIN():
 	tcp =TCP()
 	tcp.ack = 5
 	tcp.flags = "F"
-	while port < 10:
+	while port < 1024:
 		tcp.dport = port	
 		resp1 = sr1(ip/tcp, timeout = 2, verbose=0)
 		#verificación bandera
@@ -157,7 +166,7 @@ def TCP_UDP():
 	ip = IP()
 	ip.dst = sys.argv[2]
 	udp =UDP()
-	while port < 10:
+	while port < 1024:
 		udp.dport = port	
 		resp1 = sr1(ip/udp, timeout = 5, verbose=0)
 		#verificación bandera
@@ -192,7 +201,7 @@ def TCP_IDLE_SCAN(): # my_nmap -sI zombie target Zombieport
 		if (resp1.getlayer(TCP).flags == 0x04): #RST zombie
 			#SYN al target del zombie
 			port = 1
-			while port < 10:
+			while port < 1024:
 				#Enviar Primer SA al zombie
 				resp1 = sr1(ip1/tcp1, timeout = 1, verbose=0)
 				ipCount = resp1.id #obtenga 
@@ -211,8 +220,7 @@ def TCP_IDLE_SCAN(): # my_nmap -sI zombie target Zombieport
 				port = port+1
 	print("Puertos Cerrados/filtrados:  "+  str(Filtered))
 				
-	
-	
+
 def opciones():
 	if sys.argv[1] == "-sT":
 		return TCP_Connect()
@@ -233,9 +241,9 @@ def opciones():
 		print ("Para ayuda digite:my_nmap -h")
 		sys.exit(1)
 
-			
 		
 def main():
+	print ("Bienvenido a my_nmap")
 	revisarEntrada()
 	opciones()
 
