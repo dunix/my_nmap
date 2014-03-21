@@ -2,7 +2,11 @@
 """ ITCR - IC8042
  David Chaverri Perez
  Tarea corta 4: 
- Python usando libreria scapy para emular algunos comandos de nmap
+ Scanning En Python usando libreria scapy para emular algunos comandos de nmap
+ 
+ Referencias : 	http://nmap.org/book/idlescan.html
+				http://stackoverflow.com/questions/20429674/get-tcp-flags-with-scapy
+				http://www.secdev.org/projects/scapy/doc/usage.html
 """
 
 from scapy.all import * #libreria scapy
