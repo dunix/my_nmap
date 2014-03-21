@@ -15,7 +15,7 @@ def ayuda():
 
 def revisarEntrada():
 	#función para revisar los parámetros de entrada
-	if len(sys.argv) != 3:
+	if (len(sys.argv) != 3 and len(sys.argv) != 5):
 		if len(sys.argv) == 1:
 			print ("Error - Faltan parámetros")
 			print ("---help---")
@@ -44,15 +44,15 @@ def TCP_Connect():
 	# tcp2
 	tcp2 =TCP()
 	tcp2.flags = "A" #para completar el 3WH	
-	while port < 81:
+	while port < 10:
 		tcp.dport = port	
-		resp1 = sr1(ip/tcp, timeout = 0.5, verbose=0)
+		resp1 = sr1(ip/tcp, timeout = 1, verbose=0)
 		#verificación bandera
 		if (str(resp1) == "None"):
 			contFiltered = contFiltered +1
 		elif(resp1.haslayer(TCP)):
 			if(resp1.getlayer(TCP).flags == 0x12):
-				# paso 2 <---- SYN ACK 
+				# paso 2 <---- SYN ACK
 				tcp2.dport = port
 				tcp2.ack = resp1.seq +1
 				# paso 3 ----> ACK
@@ -79,9 +79,9 @@ def TCP_SYN():
 	# tcp2
 	tcp2 =TCP()
 	tcp2.flags = "R" #para no completar el 3WH	send RST
-	while port < 81:
+	while port < 10:
 		tcp.dport = port	
-		resp1 = sr1(ip/tcp, timeout = 0.5, verbose=0)
+		resp1 = sr1(ip/tcp, timeout = 1, verbose=0)
 		#verificación bandera
 		if (str(resp1) == "None"):
 			contFiltered = contFiltered +1
@@ -110,7 +110,7 @@ def TCP_ACK():
 	tcp =TCP()
 	tcp.ack = 5
 	tcp.flags = "A"
-	while port < 200:
+	while port < 10:
 		tcp.dport = port	
 		resp1 = sr1(ip/tcp, timeout = 10, verbose=0)
 		#verificación bandera
@@ -170,7 +170,48 @@ def TCP_UDP():
 		else:
 			OpenFiltered =  OpenFiltered +1
 		port = port +1
-	print("Puertos Abiertos/filtrados:  "+  str(OpenFiltered))	
+	print("Puertos Abiertos/filtrados:  "+  str(OpenFiltered))
+	
+def TCP_IDLE_SCAN(): # my_nmap -sI zombie target Zombieport
+	print("------ Ejecutando TCP_IDLE_SCAN---------")
+	ipCount = 0
+	Filtered = 0
+	closed = 0
+	# Paquete IP
+	ip1 = IP()
+	ip1.dst = sys.argv[2]
+	tcp1 =TCP()
+	tcp1.flags = "SA"
+	tcp1.dport = int(sys.argv[4])
+	#envio SA al zombie
+	resp1 = sr1(ip1/tcp1, timeout = 1, verbose=0)
+	if (str(type(resp1))=="<type 'NoneType'>"): #packs sin respuesta
+			print("Puerto Zombie Filtrado")
+	elif(resp1.haslayer(TCP)): #Verifica puerto no filtrado
+		print("---Escaneando Target---")
+		if (resp1.getlayer(TCP).flags == 0x04): #RST zombie
+			#SYN al target del zombie
+			port = 1
+			while port < 10:
+				#Enviar Primer SA al zombie
+				resp1 = sr1(ip1/tcp1, timeout = 1, verbose=0)
+				ipCount = resp1.id #obtenga 
+				#Enviar S del zombie al target
+				resp2 = send(IP(dst = sys.argv[3], src = sys.argv[2])/TCP(dport = port, flags="S"), verbose=0)
+				#envio SA al zombie
+				resp3 = sr1(IP(dst = sys.argv[2])/TCP(dport = port, flags="SA"), timeout = 1, verbose=0)
+				if (str(type(resp1))=="<type 'NoneType'>"):
+					Filtered = Filtered +1
+				elif(resp1.haslayer(TCP)):
+					if (resp1.getlayer(TCP).flags == 0x04): #RST zombie
+						if (resp3.id -2 == ipCount):
+							print("Puerto" + str(port) + "abierto")
+				else:
+					Filtered = Filtered +1
+				port = port+1
+	print("Puertos Cerrados/filtrados:  "+  str(Filtered))
+				
+	
 	
 def opciones():
 	if sys.argv[1] == "-sT":
@@ -182,18 +223,15 @@ def opciones():
 	if sys.argv[1] == "-sF":
 		return TCP_FIN()	
 	if sys.argv[1] == "-sU":
-		return TCP_UDP()						
+		return TCP_UDP()
+	if sys.argv[1] == "-sI":
+		return TCP_IDLE_SCAN()								
 		
 	else:
 		print ("Error - opción inválida")
 		print ("---help---")
 		print ("Para ayuda digite:my_nmap -h")
 		sys.exit(1)
-	
-"""					
-	if sys.argv[1] == "-sI":
-		return TCP_IDLE_SCAN()					
-"""
 
 			
 		
